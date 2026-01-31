@@ -1,0 +1,17 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block extra_style %}
+<link rel="stylesheet" href="{% static 'main/css/index.css' %}">
+{% endblock %}
+
+{% block header_title %}ホーム <i class="fas fa-home"></i>{% endblock  %}
+
+{% block content %}
+<div class="buttons">
+    <a href="{% url 'login' %}" class="button">ログイン</a>
+    <a href="{% url 'friends' %}" class="button">友達</a>
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}
