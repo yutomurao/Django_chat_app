@@ -1,10 +1,11 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.contrib import auth
+from django.db.models import Q
 from django.contrib.auth import views as auth_views
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from .forms import LoginForm, SignUpForm
-from .models import User
+from .models import User, Talk
 
 
 def index(request):
@@ -43,3 +44,19 @@ def friends(request):
 @login_required
 def settings(request):
     return render(request, "main/settings.html")
+
+@login_required
+def talk_room(request, friend_id):
+    friend = get_object_or_404(User, id=friend_id)
+    
+    talks = Talk.objects.filter(
+        Q(sender=request.user, receiver=friend)
+        |Q(sender=friend, receiver=request.user)
+    ).order_by("time")
+    
+    context = {
+        "friend": friend,
+        "talks": talks,
+    }
+    
+    return render(request, "main/talk_room.html", context)
