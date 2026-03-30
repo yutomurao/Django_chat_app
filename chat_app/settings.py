@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-9xk3a8f7s2h1j4k6l0m9n8p7q5r3t2u1'
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    "englishplatform.pythonanywhere.com",
+    "muraofmailychatapp.pythonanywhere.com",
     "127.0.0.1",
     "localhost",
 ]
