@@ -1,10 +1,18 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib import auth
 from django.db.models import Q
+from django.urls import reverse_lazy
 from django.contrib.auth import views as auth_views
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from .forms import LoginForm, SignUpForm
+from .forms import (
+    LoginForm,
+    SignUpForm,
+    TalkForm,
+    UsernameChangeForm,
+    EmailChangeForm,
+    IconChangeForm,
+)
 from .models import User, Talk
 
 
@@ -46,17 +54,91 @@ def settings(request):
     return render(request, "main/settings.html")
 
 @login_required
-def talk_room(request, friend_id):
-    friend = get_object_or_404(User, id=friend_id)
-    
+def talk_room(request, user_id):
+    friend = get_object_or_404(User, id=user_id)
     talks = Talk.objects.filter(
         Q(sender=request.user, receiver=friend)
-        |Q(sender=friend, receiver=request.user)
+        | Q(sender=friend, receiver=request.user)
     ).order_by("time")
-    
+    if request.method == "GET":
+        form = TalkForm()
+    elif request.method == "POST":
+        form = TalkForm(request.POST)
+        if form.is_valid():
+            new_talk = form.save(commit=False)
+            new_talk.sender = request.user
+            new_talk.receiver = friend
+            new_talk.save()
+            return redirect("talk_room", user_id)
+
     context = {
+        "form": form,
         "friend": friend,
         "talks": talks,
     }
-    
     return render(request, "main/talk_room.html", context)
+
+@login_required
+def username_change(request):
+    if request.method == "GET":
+        form = UsernameChangeForm(instance=request.user)
+    elif request.method  == "POST":
+        form = UsernameChangeForm(request.POST, instance=request.user)
+        if form.is_valid:
+            form.save()
+            return redirect("username_change_done")
+    context = {"form": form}
+    return render(request, "main/username_change.html", context)
+
+@login_required
+def username_change_done(request):
+    return render(request, "main/username_change_done.html")
+
+@login_required
+def email_change(request):
+    if request.method == "GET":
+        form = EmailChangeForm(instance=request.user)
+    elif request.method == "POST":
+        form = EmailChangeForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect("email_change_done")
+
+    context = {"form": form}
+    return render(request, "main/email_change.html", context)
+
+@login_required
+def email_change_done(request):
+    return render(request, "main/email_change_done.html")
+
+class PasswordChangeView(auth_views.PasswordChangeView):
+    template_name = "main/password_change.html"
+    success_url = reverse_lazy("password_change_done")
+
+class PasswordChangeDoneView(auth_views.PasswordChangeDoneView):
+    template_name = "main/password_change_done.html"
+    
+class LogoutView(auth_views.LogoutView):
+    pass
+
+@login_required
+def icon_change(request):
+    if request.method == "GET":
+        form = IconChangeForm(instance=request.user)
+    elif request.method == "POST":
+        form = IconChangeForm(
+            request.POST, request.FILES, instance=request.user
+        )
+        if form.is_valid():
+            form.save()
+            return redirect("icon_change_done")
+
+    context = {
+        "form": form,
+    }
+    return render(request, "main/icon_change.html", context)
+
+
+@login_required
+def icon_change_done(request):
+    return render(request, "main/icon_change_done.html")

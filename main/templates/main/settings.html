@@ -2,7 +2,22 @@
 {% load static %}
 
 {% block extra_style %}
-<link rel="stylesheet" href="{% static "main/css/settings.css" %}">
-{% endblock  %}
+<link rel="stylesheet" href="{% static 'main/css/settings.css' %}">
+{% endblock %}
 
-{% block header_title %}設定 <i class="fas fa-user-cog"></i>{% endblock  %}
+{% block header_title %}設定{% endblock %}
+
+{% block content %}
+<div class="settings">
+    <div class="buttons">
+        <a href="{% url "username_change" %}" class="button">ユーザー名変更</a>
+        <a href="{% url 'icon_change' %}" class="button">アイコン変更</a>
+        <a href="{% url "email_change" %}" class="button">メールアドレス変更</a>
+        <a href="{% url "password_change" %}" class="button">パスワード変更</a>
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="button">ログアウト</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
