@@ -33,7 +33,7 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://muraofmailychatapp.pythonanywhere.com"
+    "https://muraofamilychatapp.pythonanywhere.com"
 ]
 
 # Application definition
