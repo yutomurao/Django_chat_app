@@ -56,6 +56,13 @@ def settings(request):
 @login_required
 def talk_room(request, user_id):
     friend = get_object_or_404(User, id=user_id)
+    
+    Talk.objects.filter(
+        sender=friend,
+        receiver=request.user,
+        is_read=False
+    ).update(is_read=True)
+    
     talks = Talk.objects.filter(
         Q(sender=request.user, receiver=friend)
         | Q(sender=friend, receiver=request.user)

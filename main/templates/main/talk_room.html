@@ -25,8 +25,16 @@
             {% endif %}
             <p class="chatboard__message">{{ talk.message }}</p>
             <p class="chatboard__time">
-                {{ talk.time|date:"m/d" }}</br>
+                {{ talk.time|date:"m/d" }}<br>
                 {{ talk.time|date:"H:i" }}
+
+                {% if talk.sender == request.user %}
+                    {% if talk.is_read %}
+                    <span class="read">既読</span>
+                    {% else %}
+                    <span class="unread">未読</span>
+                    {% endif %}
+                {% endif %}
             </p>
         </li>
         {% endfor %}
@@ -34,10 +42,36 @@
 
     <form action="{% url 'talk_room' friend.id %}" method="POST" class="message-form">
         {% csrf_token %}
-        {{ form.message }}
+        <textarea name="message" rows="1" placeholder="メッセージを入力"></textarea>
         <button type="submit" class="message-form__submit">送信</button>
     </form>
 </div>
+
+<script>
+    // ページ読み込み時に一番下へ
+    window.onload = function() {
+        window.scrollTo(0, document.body.scrollHeight);
+    };
+
+    // textarea自動拡張
+    const textarea = document.querySelector("textarea");
+
+    if (textarea) {
+        textarea.addEventListener("input", () => {
+            textarea.style.height = "auto";
+            textarea.style.height = textarea.scrollHeight + "px";
+        });
+
+        // Enterで送信（Shift+Enterで改行）
+        textarea.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                textarea.form.submit();
+            }
+        });
+    }
+</script>
+
 {% endblock %}
 
 {% block footer %}{% endblock %}
